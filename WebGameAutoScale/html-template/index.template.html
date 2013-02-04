@@ -36,6 +36,11 @@
             
         <script type="text/javascript" src="swfobject.js"></script>
         <script type="text/javascript">
+        	var windowWidth  = document.documentElement.clientWidth;
+			var windowHeight =  document.documentElement.clientHeight;
+			var gameWidth = 1366;
+			var gameHieght = 620;
+			
             // For version detection, set to min. required Flash Player version, or 0 (or 0.0.0), for no version detection. 
             var swfVersionStr = "${version_major}.${version_minor}.${version_revision}";
             // To use express install, set to playerProductInstall.swf, otherwise the empty string. 
@@ -46,21 +51,47 @@
             params.bgcolor = "${bgcolor}";
             params.allowscriptaccess = "sameDomain";
             params.allowfullscreen = "true";
-            params.wmode = "direct";
+            params.wmode="direct";
             var attributes = {};
             attributes.id = "${application}";
             attributes.name = "${application}";
             attributes.align = "middle";
             swfobject.embedSWF(
                 "${swf}.swf", "flashContent", 
-                "${width}", "${height}", 
+                Math.min(windowWidth, gameWidth), Math.min(windowHeight, gameHieght), 
                 swfVersionStr, xiSwfUrlStr, 
                 flashvars, params, attributes);
             // JavaScript enabled so display the flashContent div in case it is not replaced with a swf object.
             swfobject.createCSS("#flashContent", "display:block;text-align:left;");
+            
+            function resizeHandler(){
+            	var w = getWebWidth();
+            	var h = getWebHeight();
+            	$("${application}").width = w;
+            	$("${application}").height = h;
+
+				if($("${application}").resizeHandler != null){
+					$("${application}").resizeHandler(w, h);
+				}            	
+            }
+            
+            function $(id){
+            	return document.getElementById(id);
+            }
+            
+            function getWebWidth(){
+        		windowWidth  = document.documentElement.clientWidth;
+        		$("test").value = "w:" + windowWidth;
+        		return Math.min(windowWidth, gameWidth);
+            }
+            function getWebHeight(){
+				windowHeight =  document.documentElement.clientHeight;
+        		$("test").value += "h:" + windowHeight;
+				return Math.min(windowHeight, gameHieght);
+            }
         </script>
     </head>
-    <body>
+    <body onresize="resizeHandler()">
         <!-- SWFObject's dynamic embed method replaces this alternative HTML content with Flash content when enough 
              JavaScript and Flash plug-in support is available. The div is initially hidden so that it doesn't show
              when JavaScript is disabled.
@@ -105,5 +136,7 @@
                 <!--<![endif]-->
             </object>
         </noscript>     
+        
+        <input type="text" id="test">
    </body>
 </html>
